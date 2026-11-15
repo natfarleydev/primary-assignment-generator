@@ -27,8 +27,8 @@
 
     <div class="field">
       <label for="scriptureText">Scripture text</label>
-      <textarea id="scriptureText" name="scriptureText" rows="4" aria-describedby="fit-warning"></textarea>
-      <p class="warning" id="fit-warning" role="status" aria-live="polite"></p>
+      <textarea id="scriptureText" name="scriptureText" rows="4" aria-describedby="scripture-warning"></textarea>
+      <p class="warning" id="scripture-warning" role="status" aria-live="polite"></p>
     </div>
 
     <div class="field">
@@ -43,7 +43,8 @@
 
     <div class="field">
       <label for="talkHint">Talk hint</label>
-      <input id="talkHint" name="talkHint" type="text">
+      <input id="talkHint" name="talkHint" type="text" aria-describedby="talk-warning">
+      <p class="warning" id="talk-warning" role="status" aria-live="polite"></p>
     </div>
 
     <div class="field">
@@ -70,6 +71,7 @@
       <div class="page" id="page"></div>
     </div>
   </section>
+  <div class="measure" id="measure" aria-hidden="true"></div>
 </main>
 <script>/*SCRIPT*/</script>
 </body>

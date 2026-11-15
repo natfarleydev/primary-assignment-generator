@@ -8,18 +8,23 @@ export const DEFAULT_TODAY = '2026-11-10T12:00:00';
 
 const isLocal = (url) => url.startsWith('file:') || url.startsWith('data:');
 
-// Each slip index whose content pokes outside the slip's box. Measured from
-// element boxes, independently of how the app decides what fits.
-const overflowingSlips = (page) => page.$$eval('#page section', (slips) => slips
+// Each slip index whose content uses more than 4px of the slip's bottom
+// padding, or pokes into its right padding. 4px: the approved 22 November
+// page uses 3.2px. Measured from element boxes, independently of the app.
+const BOTTOM_GRACE = 4;
+const overflowingSlips = (page) => page.$$eval('#page section', (slips, grace) => slips
   .map((slip, i) => {
     const box = slip.getBoundingClientRect();
+    const style = getComputedStyle(slip);
+    const bottom = box.bottom - parseFloat(style.paddingBottom);
+    const right = box.right - parseFloat(style.paddingRight);
     const outside = [...slip.querySelectorAll('*')].some((el) => {
       const r = el.getBoundingClientRect();
-      return r.height > 0 && (r.bottom > box.bottom + 0.5 || r.right > box.right + 0.5);
+      return r.height > 0 && (r.bottom > bottom + grace || r.right > right + 0.5);
     });
     return outside ? i : -1;
   })
-  .filter((i) => i >= 0));
+  .filter((i) => i >= 0), BOTTOM_GRACE);
 
 export const openSite = async (page, { today = DEFAULT_TODAY } = {}) => {
   const requests = [];

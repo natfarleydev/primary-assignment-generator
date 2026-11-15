@@ -3,23 +3,18 @@
 import { SCHEDULE } from './data/schedule.js';
 import { FIELDS, emptyForm, update } from './core/form.js';
 import { isoDate, sundayChoice } from './core/sundays.js';
-import { renderPage, previewScale } from './core/page.js';
-import { fitVerse } from './core/fit.js';
+import { layoutPage, previewScale } from './core/page.js';
 import { createView, today } from './shell/view.js';
 import { createStore } from './shell/store.js';
 
 const SUNDAYS_LISTED = 26;
-const TOO_LONG = 'This verse is too long to fit. Please choose a shorter passage.';
 
 const view = createView(document, FIELDS);
 
 const showSlips = (form) => {
-  const { verseSize, tooLong } = fitVerse((px) => {
-    view.showPage(renderPage(form, { verseSize: px }));
-    return view.slipsOverflow();
-  });
-  view.showPage(renderPage(form, { verseSize }));
-  view.showWarning('fit-warning', tooLong ? TOO_LONG : '');
+  const { html, warnings } = layoutPage(form, view.measure);
+  view.showPage(html);
+  view.showWarnings(warnings);
 };
 
 const step = (form, action) => update(form, action, SCHEDULE);

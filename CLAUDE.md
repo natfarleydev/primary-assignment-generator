@@ -30,6 +30,20 @@ Do not restyle it.**
 - British English in all user-facing text ("practise", not "practice").
 - Only `#111111`, `#4A4A4A`, `#6E6E6E`, `#555555` and white on the slip.
 
+## Text fit (replaces SPEC section 4, "Text fit")
+
+When everything fits, the slips are the approved 374 / 375 / 374 px. If a
+slip's content is too tall:
+
+1. The slip grows into the other slips' spare room (shared in proportion to
+   each slip's spare room; the page stays 1123 px).
+2. Only if that is not enough does the verse shrink, 16 → 15 → 14 px.
+3. Only then does a warning appear in the form, next to the scripture or talk
+   fields. Never on the slip.
+
+A slip fits if its content uses at most 4 px of its bottom padding
+(`PADDING_GRACE`; the approved 22 November page uses 3.2 px).
+
 ## UX: make errors impossible
 
 Follow Nielsen Norman Group (NN/g) guidance, above all heuristic #5, **error

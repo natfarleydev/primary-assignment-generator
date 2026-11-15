@@ -1,10 +1,19 @@
-// Pure renderer: form → HTML string for one A4 page of 3 slips.
-// Markup and inline styles are copied from docs/spec/reference/*.html.
+// Slip page: form → one A4 page of 3 slips (HTML string), laid out so every
+// slip's content fits. Markup and inline styles are copied from
+// docs/spec/reference/*.html.
 
 import { formatSlipDate } from './sundays.js';
 
-// The A4 page at 96 dpi, in CSS px.
-export const PAGE = { width: 794, height: 1123 };
+// The A4 page at 96 dpi, in CSS px, and the approved slip heights.
+export const PAGE = { width: 794, height: 1123, slipHeights: [374, 375, 374] };
+const VERSE_SIZES = [16, 15, 14];
+// A slip fits if its content uses at most this much of its bottom padding.
+// The approved 22 November page uses 3.2px of it.
+export const PADDING_GRACE = 4;
+const WARNINGS = {
+  scripture: 'This verse is too long to fit. Please choose a shorter passage.',
+  talk: 'The talk topic and hint are too long to fit. Please shorten them.',
+};
 
 // Scale for the on-screen preview: fit the width, never larger than 1.
 export const previewScale = (availableWidth) => Math.min(1, availableWidth / PAGE.width);
@@ -86,8 +95,8 @@ ${hintRow}
 </div>`;
 };
 
-const slip = ({ padding, border, name, sunday, dateSize, taskText, taskSize, details, phone }) =>
-  `<section style="height: ${padding.height}px; box-sizing: border-box; padding: ${padding.css}; display: flex; flex-direction: column; gap: 8px; position: relative${border ? '; border-top: 1.5px dashed #6E6E6E' : ''}">
+const slip = ({ height, padding, border, name, sunday, dateSize, taskText, taskSize, details, phone }) =>
+  `<section style="height: ${height ?? 0}px; box-sizing: border-box; padding: ${padding.css}; display: flex; flex-direction: column; gap: 8px; position: relative${border ? '; border-top: 1.5px dashed #6E6E6E' : ''}">
 ${border ? SCISSORS : ''}
 ${invitationRow(name)}
 ${dateLine(sunday, dateSize)}
@@ -97,15 +106,70 @@ ${details}
 ${replyRow(phone)}
 </section>`;
 
-// options.verseSize: font size in px for the verse text (16 by default).
-export const renderPage = (form, { verseSize = 16 } = {}) => {
+// options.verseSize: verse font size in px. options.heights: the 3 slip
+// heights in px, or null to render every slip 0px tall for measuring (each
+// slip's content then shrinks to its minimum and overflows by its full size).
+export const renderPage = (form, { verseSize = VERSE_SIZES[0], heights = PAGE.slipHeights } = {}) => {
+  const [prayerHeight, scriptureHeight, talkHeight] = heights ?? [null, null, null];
   const shared = { sunday: form.sunday, phone: form.phone };
   return `<div style="width: ${PAGE.width}px; height: ${PAGE.height}px; box-sizing: border-box; background: #ffffff; font-family: 'Atkinson Hyperlegible', Verdana, sans-serif; color: ${INK}; display: flex; flex-direction: column">
-${slip({ ...shared, padding: { height: 374, css: '40px 48px 26px' }, border: false, name: form.prayerName,
+${slip({ ...shared, height: prayerHeight, padding: { css: '40px 48px 26px' }, border: false, name: form.prayerName,
     dateSize: 68, taskText: 'Say the opening prayer', taskSize: 56, details: '' })}
-${slip({ ...shared, padding: { height: 375, css: '28px 48px 26px' }, border: true, name: form.scriptureName,
+${slip({ ...shared, height: scriptureHeight, padding: { css: '28px 48px 26px' }, border: true, name: form.scriptureName,
     dateSize: 52, taskText: 'Read a scripture aloud', taskSize: 44, details: scriptureDetails(form, verseSize) })}
-${slip({ ...shared, padding: { height: 374, css: '28px 48px 40px' }, border: true, name: form.talkName,
+${slip({ ...shared, height: talkHeight, padding: { css: '28px 48px 40px' }, border: true, name: form.talkName,
     dateSize: 52, taskText: 'Give a short talk', taskSize: 44, details: talkDetails(form) })}
 </div>`;
+};
+
+// Share the page between slips that need more room and slips with spare
+// room. Returns null if the 3 slips cannot fit on the page together.
+const shareHeights = (needs, defaults = PAGE.slipHeights) => {
+  const total = defaults.reduce((a, b) => a + b, 0);
+  if (needs.every((need, i) => need <= defaults[i])) return defaults;
+  if (needs.reduce((a, b) => a + b, 0) > total) return null;
+  const spare = needs.map((need, i) => Math.max(0, defaults[i] - need));
+  const extra = needs.reduce((sum, need, i) => sum + Math.max(0, need - defaults[i]), 0);
+  const spareTotal = spare.reduce((a, b) => a + b, 0);
+  const exact = spare.map((s) => (extra * s) / spareTotal);
+  const given = exact.map(Math.floor);
+  const leftover = extra - given.reduce((a, b) => a + b, 0);
+  // Largest remainder first; ties go to the earlier slip.
+  const order = exact.map((x, i) => [x - given[i], i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  const top = new Set(order.slice(0, leftover).map(([, i]) => i));
+  return needs.map((need, i) => (spare[i] > 0 ? defaults[i] - given[i] - (top.has(i) ? 1 : 0) : need));
+};
+
+const pageAt = (form, verseSize, measure) => {
+  const needs = measure(renderPage(form, { verseSize, heights: null })).map((h) => h - PADDING_GRACE);
+  const heights = shareHeights(needs);
+  return { verseSize, needs, heights };
+};
+
+// Lay out the page so every slip fits. `measure(html)` is the one effect:
+// given a page rendered for measuring, it returns, for each of the 3 slips,
+// the height in px from its top to the end of its content plus its full
+// bottom padding.
+// First the slips grow into each other's spare room; only then does the
+// verse shrink (16 → 14px); only then is a warning returned.
+// Returns { html, warnings: { scripture, talk } } (empty string = no warning).
+export const layoutPage = (form, measure) => {
+  // Measure one verse size at a time, stopping at the first that fits.
+  const fitted = VERSE_SIZES.reduce((found, px) => found ?? [pageAt(form, px, measure)]
+    .find((p) => p.heights), undefined);
+  if (fitted) {
+    return {
+      html: renderPage(form, { verseSize: fitted.verseSize, heights: fitted.heights }),
+      warnings: { scripture: '', talk: '' },
+    };
+  }
+  const smallest = VERSE_SIZES[VERSE_SIZES.length - 1];
+  const { needs } = pageAt(form, smallest, measure);
+  return {
+    html: renderPage(form, { verseSize: smallest }),
+    warnings: {
+      scripture: needs[1] > PAGE.slipHeights[1] ? WARNINGS.scripture : '',
+      talk: needs[2] > PAGE.slipHeights[2] ? WARNINGS.talk : '',
+    },
+  };
 };

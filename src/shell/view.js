@@ -13,6 +13,8 @@ export const createView = (doc, fields) => {
   const sunday = form.elements.sunday;
   const page = $('page');
   const frame = $('preview-frame');
+  const measureHost = $('measure');
+  const WARNING_IDS = { scripture: 'scripture-warning', talk: 'talk-warning' };
 
   return {
     // The dropdown shows "No date" (null in the core) as the value "none".
@@ -20,9 +22,20 @@ export const createView = (doc, fields) => {
       new Option(label, value ?? 'none', false, value === selected))),
     showFields: (values) => fields.forEach((field) => { form.elements[field].value = values[field]; }),
     showPage: (html) => { page.innerHTML = html; },
-    showWarning: (id, text) => { $(id).textContent = text; },
-    // True if any slip on the shown page is taller than its box.
-    slipsOverflow: () => [...page.querySelectorAll('section')].some((s) => s.scrollHeight > s.clientHeight),
+    showWarnings: (warnings) => Object.entries(WARNING_IDS).forEach(([slip, id]) => {
+      $(id).textContent = warnings[slip];
+    }),
+    // For each slip: top of the slip to the end of its content, plus its
+    // bottom padding. `html` renders the slips 0px tall, so every row is at
+    // its smallest and the last row marks the end of the content.
+    measure: (html) => {
+      measureHost.innerHTML = html;
+      return [...measureHost.querySelectorAll('section')].map((s) => {
+        const top = s.getBoundingClientRect().top;
+        const end = s.lastElementChild.getBoundingClientRect().bottom;
+        return Math.ceil(end - top + parseFloat(getComputedStyle(s).paddingBottom));
+      });
+    },
     scalePreview: (scaleFor) => {
       const scale = scaleFor(frame.clientWidth);
       page.style.transform = `scale(${scale})`;
