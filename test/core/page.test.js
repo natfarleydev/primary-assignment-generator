@@ -66,3 +66,10 @@ test('the preview shrinks the A4 page to fit the space, but never enlarges it', 
   assert.equal(previewScale(397), 0.5);
   assert.equal(previewScale(2000), 1);
 });
+
+import { PAGE } from '../../src/core/page.js';
+
+test('the approved slip heights fill the A4 page exactly', () => {
+  assert.equal(PAGE.slipHeights.reduce((a, b) => a + b, 0), PAGE.height);
+  assert.match(renderPage(emptyForm()), /^<div style="width: 794px; height: 1123px;/);
+});
