@@ -1,11 +1,11 @@
 // Write review screenshots of the slip page (794×1123 at 1.5×) to
-// test-results/screenshots/ and print the pixel difference from the approved PNGs.
-import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
-import { mkdirSync } from 'node:fs';
+// test-results/screenshots/ and print the pixel difference from the
+// approved PNGs in docs/spec/screenshots/.
+import { chromium } from '@playwright/test';
+import { mkdirSync, readFileSync } from 'node:fs';
+import { openSite } from '../test/integration/support/site.js';
 import { CASES, shootCase, percentDifferent } from '../test/integration/support/compare.js';
 
-const { chromium } = createRequire(import.meta.url)('@playwright/test');
 const root = new URL('../', import.meta.url);
 const OUT = new URL('test-results/screenshots/', root);
 mkdirSync(OUT, { recursive: true });
@@ -13,12 +13,9 @@ mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
 for (const c of CASES) {
   const page = await browser.newPage({ viewport: { width: 1400, height: 1200 }, deviceScaleFactor: 1.5 });
-  await page.clock.setFixedTime(new Date('2026-11-10T12:00:00'));
-  await page.goto(pathToFileURL(new URL('dist/index.html', root).pathname).href);
-  await page.evaluate(() => document.fonts.ready);
-  const shot = await shootCase(page, c, new URL(`${c.name}.png`, OUT).pathname);
-  const diff = await percentDifferent(browser, shot, new URL(`docs/spec/screenshots/${c.name}.png`, root));
-  console.log(`${c.name}: ${diff.toFixed(3)}% of pixels differ`);
+  const shot = await shootCase(await openSite(page), c, new URL(`${c.name}.png`, OUT).pathname);
+  const approved = readFileSync(new URL(`docs/spec/screenshots/${c.name}.png`, root));
+  console.log(`${c.name}: ${(await percentDifferent(browser, shot, approved)).toFixed(3)}% of pixels differ`);
   await page.close();
 }
 await browser.close();

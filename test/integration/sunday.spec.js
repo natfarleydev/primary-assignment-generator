@@ -1,7 +1,7 @@
-import { test, expect, openApp } from './support/fixtures.js';
+import { test, expect, openSite } from './support/fixtures.js';
 
 test('defaults to the next Sunday that has lesson data', async ({ page }) => {
-  const app = await openApp(page, { today: '2026-11-16T09:00:00' });
+  const app = await openSite(page, { today: '2026-11-16T09:00:00' });
   expect(await app.value('sunday')).toBe('2026-11-22');
   expect(await app.value('scriptureRef')).toBe('Joel 2:28–29');
 });
