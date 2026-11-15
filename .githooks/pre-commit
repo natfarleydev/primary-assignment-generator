@@ -1,0 +1,6 @@
+#!/bin/sh
+# Runs every check before a commit (about 3–4 seconds).
+# Unit tests run first because they fail fastest.
+# Skip in an emergency with: git commit --no-verify (CI still runs the checks).
+set -e
+npm run --silent check

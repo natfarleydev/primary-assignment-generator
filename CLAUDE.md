@@ -12,6 +12,8 @@ Do not restyle it.**
 - `npm test`: unit tests (Node's built-in `node:test`, no browser).
 - `npm run build`: bundle `src/` into `dist/` (static files, works from `file://`).
 - `npm run test:e2e`: build, then run the Playwright checks in `test/e2e/`.
+- `npm run check`: all of the above (about 4 seconds). The pre-commit hook
+  runs this.
 - `npm run screenshots`: write review screenshots to `test/e2e/output/`.
 
 ## Hard rules
@@ -95,8 +97,20 @@ Build every feature and fix test-first with the `tdd` skill in
 
 - Commit straight to `main` and push. No long-lived branches, no pull
   requests unless someone asks for one.
-- Keep each commit small and green: run `npm test` and `npm run test:e2e`
-  before you push. A push to `main` deploys to GitHub Pages.
+- Keep each commit small and green. The pre-commit hook (`.githooks/`,
+  turned on by `npm install`) runs `npm run check` and blocks a failing
+  commit. Do not use `--no-verify`. CI runs the same check before each
+  deploy. A push to `main` deploys to GitHub Pages.
+
+## Keep the tests fast
+
+The full check must stay under about 10 seconds, so it can run on every
+commit.
+
+- Put logic in the pure core and test it with unit tests (milliseconds).
+- Use Playwright only for what needs a real browser: layout, fit, print,
+  offline. Share one browser per test file; open a fresh context per test.
+- No sleeps or fixed waits in tests. Wait on a real condition.
 
 ## Skills
 
