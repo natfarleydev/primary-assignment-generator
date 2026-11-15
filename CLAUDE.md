@@ -91,6 +91,13 @@ Build every feature and fix test-first with the `tdd` skill in
 - Expected values come from the spec or the reference HTML, not from
   re-running the code's own logic.
 
+## Git: trunk-based development
+
+- Commit straight to `main` and push. No long-lived branches, no pull
+  requests unless someone asks for one.
+- Keep each commit small and green: run `npm test` and `npm run test:e2e`
+  before you push. A push to `main` deploys to GitHub Pages.
+
 ## Skills
 
 Matt Pocock's skills (MIT) are installed in `.claude/skills/`. See
