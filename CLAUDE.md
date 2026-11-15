@@ -11,15 +11,18 @@ Do not restyle it.**
 
 - `npm test`: unit tests (Node's built-in `node:test`, no browser).
 - `npm run build`: bundle `src/` into `dist/` (static files, works from `file://`).
-- `npm run test:e2e`: build, then run the Playwright checks in `test/e2e/`.
-- `npm run check`: all of the above (about 4 seconds). The pre-commit hook
-  runs this.
-- `npm run screenshots`: write review screenshots to `test/e2e/output/`.
+- `npm run test:integration`: build, then run the Playwright integration
+  tests in `test/integration/` against `dist/index.html`.
+- `npm run check`: unit + integration tests (about 4 seconds). The pre-commit
+  hook and CI run this.
+- `npm run screenshots`: write review screenshots to `test-results/screenshots/`.
 
 ## Hard rules
 
 - Static only. No server, no API calls, no analytics, no runtime network.
   Self-host the font. The built site must work from `file://` and GitHub Pages.
+  **One exception:** the CI status badge image in the form panel loads from
+  github.com. The page must work fully without it, and it must not print.
 - Lesson data is hard-coded in `src/data/schedule.js`. Never invent a
   scripture, verse text or topic. If a field is not verified, set it to `null`.
 - British English in all user-facing text ("practise", not "practice").
@@ -86,10 +89,16 @@ Build every feature and fix test-first with the `tdd` skill in
 - Test pure core functions directly, through their public exports.
 - Test each side-effect function with an injected fake (for example a fake
   `Storage` object), never by mocking our own modules.
-- Use Playwright (`test/e2e/`) for layout: screenshots at 794×1123, device
-  scale factor 1.5, must match `docs/spec/screenshots/` (under 0.01% of
-  pixels may differ). The overflow check renders every `SCHEDULE` entry and
-  fails if any slip overflows.
+- Integration tests use the Playwright test runner (`playwright.config.js`).
+  One `*.spec.js` file per feature in `test/integration/`. Use the `app`
+  fixture in `test/integration/support/fixtures.js`: it opens the built site
+  with "today" fixed and the network blocked, and has plain-language actions
+  (`chooseSunday`, `fill`, `slipTexts`, …). Add an action there rather than
+  repeating selectors in tests.
+- Visual tests: screenshots at 794×1123, device scale factor 1.5, must match
+  `docs/spec/screenshots/` (under 0.01% of pixels may differ). Never
+  overwrite the approved screenshots. The fit test renders every `SCHEDULE`
+  entry and fails if any slip overflows.
 - Expected values come from the spec or the reference HTML, not from
   re-running the code's own logic.
 
@@ -99,8 +108,10 @@ Build every feature and fix test-first with the `tdd` skill in
   requests unless someone asks for one.
 - Keep each commit small and green. The pre-commit hook (`.githooks/`,
   turned on by `npm install`) runs `npm run check` and blocks a failing
-  commit. Do not use `--no-verify`. CI runs the same check before each
-  deploy. A push to `main` deploys to GitHub Pages.
+  commit. Do not use `--no-verify`.
+- CI (`.github/workflows/ci.yml`) runs `npm run check` on every push and pull
+  request. On `main`, the deploy job publishes to GitHub Pages only if the
+  tests pass. On failure, CI uploads the Playwright report as an artifact.
 
 ## Keep the tests fast
 

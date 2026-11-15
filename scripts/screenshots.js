@@ -1,13 +1,13 @@
 // Write review screenshots of the slip page (794×1123 at 1.5×) to
-// test/e2e/output/ and print the pixel difference from the approved PNGs.
+// test-results/screenshots/ and print the pixel difference from the approved PNGs.
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { mkdirSync } from 'node:fs';
-import { CASES, shootCase, percentDifferent } from '../test/e2e/compare.js';
+import { CASES, shootCase, percentDifferent } from '../test/integration/support/compare.js';
 
-const { chromium } = createRequire(import.meta.url)('playwright');
+const { chromium } = createRequire(import.meta.url)('@playwright/test');
 const root = new URL('../', import.meta.url);
-const OUT = new URL('test/e2e/output/', root);
+const OUT = new URL('test-results/screenshots/', root);
 mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch();

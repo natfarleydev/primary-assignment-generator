@@ -5,13 +5,13 @@
   "scripts": {
     "test": "node --test \"test/core/*.test.js\"",
     "build": "node scripts/build.js",
-    "test:e2e": "npm run build && node --test \"test/e2e/*.test.js\"",
-    "check": "npm test && npm run test:e2e",
+    "check": "npm test && npm run test:integration",
     "screenshots": "npm run build && node scripts/screenshots.js",
-    "prepare": "git config core.hooksPath .githooks || true"
+    "prepare": "git config core.hooksPath .githooks || true",
+    "test:integration": "npm run build && playwright test"
   },
   "devDependencies": {
-    "esbuild": "^0.24.2",
-    "playwright": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "esbuild": "^0.24.2"
   }
 }

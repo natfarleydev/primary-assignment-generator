@@ -10,6 +10,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Atkins
 .app { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 24px; padding: 24px; align-items: start; }
 .panel { background: #ffffff; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px; }
 .panel h1 { font-size: 22px; margin: 0; }
+.status { align-self: flex-start; margin-top: -8px; line-height: 0; }
+.status img { height: 20px; }
 .field { display: flex; flex-direction: column; gap: 6px; border: 0; margin: 0; padding: 0; }
 fieldset.field label { font-weight: 400; }
 label, legend { font-weight: 700; font-size: 16px; }
