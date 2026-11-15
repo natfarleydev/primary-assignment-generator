@@ -1,4 +1,5 @@
-// Shared helpers: render a case of the slip page and diff it with an approved PNG.
+// Shared helpers: screenshot a case of the slip page, and count how many
+// pixels differ between two PNG screenshots.
 import { readFileSync } from 'node:fs';
 
 export const CASES = [

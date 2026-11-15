@@ -1,6 +1,6 @@
 #!/bin/sh
-# Runs every check before a commit (about 3–4 seconds).
+# Runs every check before a commit (about 4 seconds).
 # Unit tests run first because they fail fastest.
-# Skip in an emergency with: git commit --no-verify (CI still runs the checks).
+# If a check fails, fix it. Do not skip the hook (see CLAUDE.md).
 set -e
 NODE_OPTIONS="--test-reporter=dot" npm run --silent check

@@ -18,8 +18,8 @@ Print invitation slips for Primary opening exercises: 3 slips per A4 page
 
 - `npm test`: unit tests for the pure core (`src/core/`).
 - `npm run test:integration`: build, then drive the built page in headless
-  Chrome with Playwright (user flows, screenshots against
-  `docs/spec/screenshots/`, verse fit, offline, PDF).
+  Chrome with Playwright (user flows, layout against the approved reference
+  HTML in `docs/spec/reference/`, text fit, offline, PDF).
 - `npm run check`: both. A pre-commit hook runs this; so does CI.
 - `npm run screenshots`: write review screenshots to `test-results/screenshots/`.
 
