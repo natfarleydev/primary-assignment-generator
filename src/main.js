@@ -2,7 +2,7 @@
 
 import { SCHEDULE } from './data/schedule.js';
 import { emptyForm, chooseSunday } from './core/form.js';
-import { defaultSunday, sundayOptions } from './core/sundays.js';
+import { isoDate, sundayChoice } from './core/sundays.js';
 import { renderPage } from './core/page.js';
 import { fitVerse } from './core/fit.js';
 import * as fx from './shell/effects.js';
@@ -33,9 +33,9 @@ const currentForm = () => ({
 });
 
 const start = () => {
-  const today = fx.todayIso();
-  const initial = chooseSunday(emptyForm(), defaultSunday(today, SCHEDULE) ?? 'none', SCHEDULE);
-  fx.writeOptions(formEl.elements.sunday, sundayOptions(today, SCHEDULE, SUNDAYS_LISTED), initial.sunday ?? 'none');
+  const choice = sundayChoice(isoDate(fx.today()), SCHEDULE, SUNDAYS_LISTED);
+  const initial = chooseSunday(emptyForm(), choice.selected ?? 'none', SCHEDULE);
+  fx.writeOptions(formEl.elements.sunday, choice.options, choice.selected);
   fx.writeFields(formEl, initial, TEXT_FIELDS);
   renderFitted(initial);
 

@@ -1,14 +1,16 @@
 // Side effects only. Each function does one thing to the outside world and
 // holds no logic of its own. The pure core decides what to do.
 
-export const todayIso = () => {
+// Today's date on this device, in local time.
+export const today = () => {
   const d = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
 };
 
+// The dropdown shows "No date" (null in the core) as the value "none".
 export const writeOptions = (select, options, selected) => {
-  select.replaceChildren(...options.map(({ value, label }) => new Option(label, value, false, value === selected)));
+  select.replaceChildren(...options.map(({ value, label }) =>
+    new Option(label, value ?? 'none', false, value === selected)));
 };
 
 export const writeFields = (formEl, form, names) => {
