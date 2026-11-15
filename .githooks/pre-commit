@@ -3,4 +3,4 @@
 # Unit tests run first because they fail fastest.
 # Skip in an emergency with: git commit --no-verify (CI still runs the checks).
 set -e
-npm run --silent check
+NODE_OPTIONS="--test-reporter=dot" npm run --silent check
