@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test \"test/core/*.test.js\"",
+    "test": "node --test \"test/core/*.test.js\" \"test/shell/*.test.js\"",
     "build": "node scripts/build.js",
     "check": "npm test && npm run test:integration",
     "screenshots": "npm run build && node scripts/screenshots.js",

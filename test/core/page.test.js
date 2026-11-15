@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { renderPage } from '../../src/core/page.js';
-import { chooseSunday, emptyForm } from '../../src/core/form.js';
+import { update, emptyForm } from '../../src/core/form.js';
 import { SCHEDULE } from '../../src/data/schedule.js';
 
 // The approved page markup: the A4 <div> inside each reference file.
@@ -12,7 +12,7 @@ const referencePage = (name) => {
 };
 const normalise = (html) => html.replace(/>\s+</g, '><').trim();
 
-const formFor = (sunday) => chooseSunday(emptyForm(), sunday, SCHEDULE);
+const formFor = (sunday) => update(emptyForm(), { type: 'sundayChosen', sunday }, SCHEDULE);
 
 test('Sunday 15 November matches the approved markup', () => {
   assert.equal(normalise(renderPage(formFor('2026-11-15'))), normalise(referencePage('dated-15-november')));
@@ -58,4 +58,11 @@ test('parts can mix: a typed reference with no verse gives a write-in line for t
   const scripture = html.split('<section')[2];
   assert.match(scripture, />Jonah 2:9</);
   assert.match(scripture, /<div style="display: flex; height: 30px">/);
+});
+
+import { previewScale } from '../../src/core/page.js';
+
+test('the preview shrinks the A4 page to fit the space, but never enlarges it', () => {
+  assert.equal(previewScale(397), 0.5);
+  assert.equal(previewScale(2000), 1);
 });

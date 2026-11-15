@@ -80,8 +80,14 @@ Write a functional core with a thin imperative shell.
 Layout:
 
 - `src/core/`: pure functions only. No imports from `src/shell/`.
-- `src/shell/`: side effects only. Each export does one effect.
-- `src/main.js`: wires the shell to the core. Keep it short.
+  - `form.js`: the Form, its field list (`FIELDS`) and `update(form, action)`.
+  - `sundays.js`: the Sunday choice (options + default) and date formatting.
+  - `page.js`: page geometry and the Slip page renderer (HTML string).
+- `src/shell/`: side effects only.
+  - `view.js`: the view adapter. Shows what the core decided; reports input.
+    No decisions in it.
+  - `store.js`: the one place that holds changing state.
+- `src/main.js`: wires view and store to the core. Keep it short.
 
 ## Testing: use the `/tdd` skill
 

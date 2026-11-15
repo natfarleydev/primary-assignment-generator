@@ -1,58 +1,42 @@
-// Wiring: connects the shell's effects to the pure core.
+// Wiring: connects the view and the store to the pure core.
 
 import { SCHEDULE } from './data/schedule.js';
-import { emptyForm, chooseSunday } from './core/form.js';
+import { FIELDS, emptyForm, update } from './core/form.js';
 import { isoDate, sundayChoice } from './core/sundays.js';
-import { renderPage } from './core/page.js';
+import { renderPage, previewScale } from './core/page.js';
 import { fitVerse } from './core/fit.js';
-import * as fx from './shell/effects.js';
+import { createView, today } from './shell/view.js';
+import { createStore } from './shell/store.js';
 
-const TEXT_FIELDS = ['scriptureRef', 'scriptureText', 'lessonLabel', 'talkTopic', 'talkHint',
-  'phone', 'prayerName', 'scriptureName', 'talkName'];
 const SUNDAYS_LISTED = 26;
 const TOO_LONG = 'This verse is too long to fit. Please choose a shorter passage.';
 
-const $ = (id) => document.getElementById(id);
-const formEl = $('form');
-const pageEl = $('page');
-const frameEl = $('preview-frame');
+const view = createView(document, FIELDS);
 
-const renderFitted = (form) => {
+const showSlips = (form) => {
   const { verseSize, tooLong } = fitVerse((px) => {
-    fx.writeHtml(pageEl, renderPage(form, { verseSize: px }));
-    return fx.slipsOverflow(pageEl);
+    view.showPage(renderPage(form, { verseSize: px }));
+    return view.slipsOverflow();
   });
-  fx.writeHtml(pageEl, renderPage(form, { verseSize }));
-  fx.writeText($('fit-warning'), tooLong ? TOO_LONG : '');
+  view.showPage(renderPage(form, { verseSize }));
+  view.showWarning('fit-warning', tooLong ? TOO_LONG : '');
 };
 
-const currentForm = () => ({
-  ...emptyForm(),
-  sunday: formEl.elements.sunday.value === 'none' ? null : formEl.elements.sunday.value,
-  ...fx.readFields(formEl, TEXT_FIELDS),
-});
-
-const start = () => {
-  const choice = sundayChoice(isoDate(fx.today()), SCHEDULE, SUNDAYS_LISTED);
-  const initial = chooseSunday(emptyForm(), choice.selected ?? 'none', SCHEDULE);
-  fx.writeOptions(formEl.elements.sunday, choice.options, choice.selected);
-  fx.writeFields(formEl, initial, TEXT_FIELDS);
-  renderFitted(initial);
-
-  formEl.elements.sunday.addEventListener('change', (e) => {
-    const form = chooseSunday(currentForm(), e.target.value, SCHEDULE);
-    fx.writeFields(formEl, form, TEXT_FIELDS);
-    renderFitted(form);
+const step = (form, action) => update(form, action, SCHEDULE);
+const choice = sundayChoice(isoDate(today()), SCHEDULE, SUNDAYS_LISTED);
+const store = createStore(step(emptyForm(), { type: 'sundayChosen', sunday: choice.selected }), step,
+  (form, action) => {
+    if (action.type === 'sundayChosen') view.showFields(form);
+    showSlips(form);
   });
-  formEl.addEventListener('input', (e) => {
-    if (e.target.name !== 'sunday') renderFitted(currentForm());
-  });
-  formEl.addEventListener('submit', (e) => e.preventDefault());
-  $('print').addEventListener('click', fx.print);
 
-  fx.fitPreview(frameEl, pageEl);
-  new ResizeObserver(() => fx.fitPreview(frameEl, pageEl)).observe(frameEl);
-  fx.fontsReady().then(() => renderFitted(currentForm()));
-};
+view.showSundays(choice.options, choice.selected);
+view.showFields(store.state());
+showSlips(store.state());
+view.scalePreview(previewScale);
 
-start();
+view.onSundayChosen((sunday) => store.dispatch({ type: 'sundayChosen', sunday }));
+view.onFieldTyped((field, text) => store.dispatch({ type: 'fieldTyped', field, text }));
+view.onPrint(() => window.print());
+view.onResize(() => view.scalePreview(previewScale));
+view.fontsReady().then(() => showSlips(store.state()));

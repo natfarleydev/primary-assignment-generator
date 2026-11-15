@@ -3,6 +3,12 @@
 
 import { formatSlipDate } from './sundays.js';
 
+// The A4 page at 96 dpi, in CSS px.
+export const PAGE = { width: 794, height: 1123 };
+
+// Scale for the on-screen preview: fit the width, never larger than 1.
+export const previewScale = (availableWidth) => Math.min(1, availableWidth / PAGE.width);
+
 const INK = '#111111';
 const MUTED = '#4A4A4A';
 const GENERIC_HINT = 'They can share a story from the scriptures, something from their own life, and what they believe.';
@@ -94,7 +100,7 @@ ${replyRow(phone)}
 // options.verseSize: font size in px for the verse text (16 by default).
 export const renderPage = (form, { verseSize = 16 } = {}) => {
   const shared = { sunday: form.sunday, phone: form.phone };
-  return `<div style="width: 794px; height: 1123px; box-sizing: border-box; background: #ffffff; font-family: 'Atkinson Hyperlegible', Verdana, sans-serif; color: ${INK}; display: flex; flex-direction: column">
+  return `<div style="width: ${PAGE.width}px; height: ${PAGE.height}px; box-sizing: border-box; background: #ffffff; font-family: 'Atkinson Hyperlegible', Verdana, sans-serif; color: ${INK}; display: flex; flex-direction: column">
 ${slip({ ...shared, padding: { height: 374, css: '40px 48px 26px' }, border: false, name: form.prayerName,
     dateSize: 68, taskText: 'Say the opening prayer', taskSize: 56, details: '' })}
 ${slip({ ...shared, padding: { height: 375, css: '28px 48px 26px' }, border: true, name: form.scriptureName,
