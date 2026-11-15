@@ -95,9 +95,12 @@ Build every feature and fix test-first with the `tdd` skill in
   with "today" fixed and the network blocked, and has plain-language actions
   (`chooseSunday`, `fill`, `slipTexts`, …). Add an action there rather than
   repeating selectors in tests.
-- Visual tests: screenshots at 794×1123, device scale factor 1.5, must match
-  `docs/spec/screenshots/` (under 0.01% of pixels may differ). Never
-  overwrite the approved screenshots. The fit test renders every `SCHEDULE`
+- Visual tests: at 794×1123, device scale factor 1.5, our page must render
+  like the approved reference HTML (`docs/spec/reference/`) drawn by the same
+  browser (under 0.01% of pixels may differ). This avoids false failures from
+  font rasterising on other machines. Check the approved PNGs
+  (`docs/spec/screenshots/`) with `npm run screenshots`. Never overwrite the
+  approved files. The fit test renders every `SCHEDULE`
   entry and fails if any slip overflows.
 - Expected values come from the spec or the reference HTML, not from
   re-running the code's own logic.
