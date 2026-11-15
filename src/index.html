@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primary opening exercise slips</title>
+<style>/*STYLES*/</style>
+</head>
+<body>
+<main class="app">
+  <form class="panel" id="form" autocomplete="off">
+    <h1>Primary opening exercise slips</h1>
+
+    <div class="field">
+      <label for="sunday">Sunday</label>
+      <select id="sunday" name="sunday"></select>
+    </div>
+
+    <div class="field">
+      <label for="scriptureRef">Scripture reference</label>
+      <input id="scriptureRef" name="scriptureRef" type="text" aria-describedby="scriptureRef-help">
+      <p class="help" id="scriptureRef-help">Pick a Sunday to fill this in for you. If you type a reference, please also type the verse.</p>
+    </div>
+
+    <div class="field">
+      <label for="scriptureText">Scripture text</label>
+      <textarea id="scriptureText" name="scriptureText" rows="4" aria-describedby="fit-warning"></textarea>
+      <p class="warning" id="fit-warning" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="field">
+      <label for="lessonLabel">Lesson label <span class="optional">(optional)</span></label>
+      <input id="lessonLabel" name="lessonLabel" type="text">
+    </div>
+
+    <div class="field">
+      <label for="talkTopic">Talk topic</label>
+      <input id="talkTopic" name="talkTopic" type="text">
+    </div>
+
+    <div class="field">
+      <label for="talkHint">Talk hint</label>
+      <input id="talkHint" name="talkHint" type="text">
+    </div>
+
+    <div class="field">
+      <label for="phone">Phone number for replies <span class="optional">(optional)</span></label>
+      <input id="phone" name="phone" type="tel">
+    </div>
+
+    <fieldset class="field">
+      <legend>Child names <span class="optional">(optional)</span></legend>
+      <label for="prayerName">Prayer</label>
+      <input id="prayerName" name="prayerName" type="text">
+      <label for="scriptureName">Scripture</label>
+      <input id="scriptureName" name="scriptureName" type="text">
+      <label for="talkName">Talk</label>
+      <input id="talkName" name="talkName" type="text">
+    </fieldset>
+
+    <button type="button" id="print">Print or save as PDF</button>
+    <p class="help">In the print box, set Scale to 100% (Actual size) and Margins to None.</p>
+  </form>
+
+  <section class="preview" aria-label="Print preview">
+    <div class="preview-frame" id="preview-frame">
+      <div class="page" id="page"></div>
+    </div>
+  </section>
+</main>
+<script>/*SCRIPT*/</script>
+</body>
+</html>
