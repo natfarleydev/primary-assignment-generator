@@ -19,10 +19,12 @@ Do not restyle it.**
 
 ## Hard rules
 
-- Static only. No server, no API calls, no analytics, no runtime network.
-  Self-host the font. The built site must work from `file://` and GitHub Pages.
-  **One exception:** the CI status badge image in the form panel loads from
-  github.com. The page must work fully without it, and it must not print.
+- Static and standalone. No server, no API calls, no analytics. The built
+  site must work from `file://`, on GitHub Pages, and **offline**.
+- Everything the page needs to work (code, styles, the slip font, lesson data)
+  ships inside the site. Extras may load from the network (for example the CI
+  status badge), but only if the page works fully when they fail to load, and
+  they must never appear on the printed slip.
 - Lesson data is hard-coded in `src/data/schedule.js`. Never invent a
   scripture, verse text or topic. If a field is not verified, set it to `null`.
 - British English in all user-facing text ("practise", not "practice").

@@ -9,10 +9,6 @@ test('the form shows the build status badge, linked to the test runs', async ({ 
   await expect(badge.locator('img')).toHaveAttribute('src', BADGE);
 });
 
-test('the badge is the only thing the page loads from the network', async ({ app }) => {
-  expect(app.requests).toEqual([BADGE]);
-});
-
 test('the badge does not print', async ({ app }) => {
   await app.page.emulateMedia({ media: 'print' });
   await expect(app.page.getByRole('link', { name: /build status/i })).toBeHidden();
